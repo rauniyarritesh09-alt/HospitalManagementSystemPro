@@ -40,6 +40,23 @@ public class DatabaseInitializer {
 
             stmt.execute(patientTable);
 
+
+            String doctorTable = """
+        CREATE TABLE IF NOT EXISTS doctors(
+            doctorId INTEGER PRIMARY KEY,
+            name TEXT NOT NULL,
+            specialization TEXT,
+            qualification TEXT,
+            experience INTEGER,
+            mobile TEXT,
+            email TEXT
+        );
+        """;
+
+            stmt.execute(doctorTable);
+
+
+
             System.out.println("Database Initialized Successfully!");
 
         } catch (Exception e) {
