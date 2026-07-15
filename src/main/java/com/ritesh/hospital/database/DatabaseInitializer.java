@@ -11,6 +11,7 @@ public class DatabaseInitializer {
         try (Connection con = DatabaseConnection.getConnection();
              Statement stmt = con.createStatement()) {
 
+            // Users Table
             String userTable = """
                     CREATE TABLE IF NOT EXISTS users(
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,6 +27,7 @@ public class DatabaseInitializer {
                     VALUES('admin','admin123');
                     """);
 
+            // Patients Table
             String patientTable = """
                     CREATE TABLE IF NOT EXISTS patients(
                         patientId INTEGER PRIMARY KEY,
@@ -40,22 +42,51 @@ public class DatabaseInitializer {
 
             stmt.execute(patientTable);
 
-
+            // Doctors Table
             String doctorTable = """
-        CREATE TABLE IF NOT EXISTS doctors(
-            doctorId INTEGER PRIMARY KEY,
-            name TEXT NOT NULL,
-            specialization TEXT,
-            qualification TEXT,
-            experience INTEGER,
-            mobile TEXT,
-            email TEXT
-        );
-        """;
+                    CREATE TABLE IF NOT EXISTS doctors(
+                        doctorId INTEGER PRIMARY KEY,
+                        name TEXT NOT NULL,
+                        specialization TEXT,
+                        qualification TEXT,
+                        experience INTEGER,
+                        mobile TEXT,
+                        email TEXT
+                    );
+                    """;
 
             stmt.execute(doctorTable);
 
+            // Appointments Table
+            String appointmentTable = """
+                    CREATE TABLE IF NOT EXISTS appointments(
+                        appointmentId INTEGER PRIMARY KEY,
+                        patientId INTEGER NOT NULL,
+                        doctorId INTEGER NOT NULL,
+                        appointmentDate TEXT NOT NULL,
+                        appointmentTime TEXT NOT NULL,
+                        status TEXT NOT NULL
+                    );
+                    """;
 
+            stmt.execute(appointmentTable);
+
+            String billTable = """
+    CREATE TABLE IF NOT EXISTS bills(
+        billId INTEGER PRIMARY KEY,
+        patientId INTEGER,
+        doctorId INTEGER,
+        consultationFee INTEGER,
+        medicineCharge INTEGER,
+        testCharge INTEGER,
+        otherCharge INTEGER,
+        totalAmount INTEGER,
+        paymentMode TEXT,
+        billDate TEXT
+    );
+    """;
+
+            stmt.execute(billTable);
 
             System.out.println("Database Initialized Successfully!");
 
