@@ -8,6 +8,7 @@ import com.ritesh.hospital.database.model.Appointment;
 import com.ritesh.hospital.database.service.AppointmentService;
 
 import javax.swing.*;
+import com.ritesh.hospital.database.pdf.AppointmentPDFGenerator;
 
 public class AppointmentForm extends JFrame {
 
@@ -21,6 +22,7 @@ public class AppointmentForm extends JFrame {
     private DatePicker datePicker;
 
     private JButton btnSave;
+    private JButton btnExportPDF;
 
     PatientComboService patientService = new PatientComboService();
     DoctorComboService doctorService = new DoctorComboService();
@@ -79,6 +81,8 @@ public class AppointmentForm extends JFrame {
 
         btnSave = new JButton("Save Appointment");
         btnSave.setBounds(180,360,180,40);
+        btnExportPDF = new JButton("Export PDF");
+        btnExportPDF.setBounds(380,360,150,40);
 
         add(lblTitle);
 
@@ -101,6 +105,7 @@ public class AppointmentForm extends JFrame {
         add(cmbStatus);
 
         add(btnSave);
+        add(btnExportPDF);
         // Load Patients
         for (String patient : patientService.getPatients()) {
             cmbPatient.addItem(patient);
@@ -143,14 +148,14 @@ public class AppointmentForm extends JFrame {
 
                 // Patient ID
                 String patient = cmbPatient.getSelectedItem().toString();
-                int patientId = Integer.parseInt(patient.split(" - ")[0]);
-                appointment.setPatientId(patientId);
+                appointment.setPatientId(
+                        Integer.parseInt(patient.split(" - ")[0]));
+                appointment.setPatientName(patient.split(" - ", 2)[1]);
 
-                // Doctor ID
                 String doctor = cmbDoctor.getSelectedItem().toString();
-                int doctorId = Integer.parseInt(doctor.split(" - ")[0]);
-                appointment.setDoctorId(doctorId);
-
+                appointment.setDoctorId(
+                        Integer.parseInt(doctor.split(" - ")[0]));
+                appointment.setDoctorName(doctor.split(" - ", 2)[1]);
                 // Date
                 appointment.setAppointmentDate(datePicker.getDate().toString());
 
@@ -188,6 +193,57 @@ public class AppointmentForm extends JFrame {
 
                 JOptionPane.showMessageDialog(this,
                         "Please Enter Valid Data");
+
+            }
+
+        });
+
+        btnExportPDF.addActionListener(e -> {
+
+            try {
+
+                if (txtAppointmentId.getText().isEmpty()) {
+                    JOptionPane.showMessageDialog(this,
+                            "Please Enter Appointment Details First!");
+                    return;
+                }
+
+                Appointment appointment = new Appointment();
+
+                appointment.setAppointmentId(
+                        Integer.parseInt(txtAppointmentId.getText()));
+                String patient = cmbPatient.getSelectedItem().toString();
+                appointment.setPatientId(
+                        Integer.parseInt(patient.split(" - ")[0]));
+                appointment.setPatientName(patient.split(" - ")[1]);
+
+                String doctor = cmbDoctor.getSelectedItem().toString();
+                appointment.setDoctorId(
+                        Integer.parseInt(doctor.split(" - ")[0]));
+                appointment.setDoctorName(doctor.split(" - ")[1]);
+
+
+
+
+                if (datePicker.getDate() == null) {
+                    JOptionPane.showMessageDialog(this,
+                            "Please Select Appointment Date!");
+                    return;
+                }
+
+                appointment.setAppointmentDate(datePicker.getDate().toString());
+                appointment.setAppointmentTime(cmbTime.getSelectedItem().toString());
+                appointment.setStatus(cmbStatus.getSelectedItem().toString());
+
+                AppointmentPDFGenerator pdf = new AppointmentPDFGenerator();
+                pdf.generatePDF(appointment);
+
+            } catch (Exception ex) {
+
+                ex.printStackTrace();
+
+                JOptionPane.showMessageDialog(this,
+                        "Please Fill All Fields Correctly!");
 
             }
 

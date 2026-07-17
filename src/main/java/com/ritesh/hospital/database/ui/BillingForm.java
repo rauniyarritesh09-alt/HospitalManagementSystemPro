@@ -7,6 +7,8 @@ import com.ritesh.hospital.database.service.PatientComboService;
 
 import javax.swing.*;
 import com.ritesh.hospital.database.model.Bill;
+import com.ritesh.hospital.database.pdf.BillPDFGenerator;
+
 
 public class BillingForm extends JFrame {
 
@@ -25,6 +27,7 @@ public class BillingForm extends JFrame {
 
     private JButton btnCalculate;
     private JButton btnSave;
+    private JButton btnExportPDF;
 
     PatientComboService patientService = new PatientComboService();
     DoctorComboService doctorService = new DoctorComboService();
@@ -103,10 +106,13 @@ public class BillingForm extends JFrame {
         datePicker.setBounds(220,430,250,30);
 
         btnCalculate = new JButton("Calculate");
-        btnCalculate.setBounds(170,500,140,40);
+        btnCalculate.setBounds(90,500,150,40);
 
         btnSave = new JButton("Save Bill");
-        btnSave.setBounds(350,500,140,40);
+        btnSave.setBounds(270,500,150,40);
+        btnExportPDF = new JButton("Export PDF");
+        btnExportPDF.setBounds(450, 500, 150, 40);
+
 
         add(lblTitle);
         add(lblBillId);
@@ -141,6 +147,7 @@ public class BillingForm extends JFrame {
 
         add(btnCalculate);
         add(btnSave);
+        add(btnExportPDF);
         // Load Patients
         for (String patient : patientService.getPatients()) {
             cmbPatient.addItem(patient);
@@ -204,6 +211,14 @@ public class BillingForm extends JFrame {
 
                 bill.setPaymentMode(cmbPaymentMode.getSelectedItem().toString());
 
+                if (datePicker.getDate() == null) {
+                    JOptionPane.showMessageDialog(this,
+                            "Please Select Bill Date");
+                    return;
+                }
+
+
+
                 bill.setBillDate(datePicker.getDate().toString());
 
                 if (billingService.addBill(bill)) {
@@ -243,6 +258,50 @@ public class BillingForm extends JFrame {
                 JOptionPane.showMessageDialog(this,
                         "Please Enter Valid Data");
 
+            }
+
+        });
+
+        btnExportPDF.addActionListener(e -> {
+            if (txtBillId.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        " Please Enter Bill Details First");
+                return;
+            }
+
+            try {
+
+                Bill bill = new Bill();
+
+                bill.setBillId(Integer.parseInt(txtBillId.getText()));
+                bill.setPatientId(Integer.parseInt(cmbPatient.getSelectedItem().toString().split(" - ")[0]));
+                bill.setDoctorId(Integer.parseInt(cmbDoctor.getSelectedItem().toString().split(" - ")[0]));
+
+                bill.setConsultationFee(Integer.parseInt(txtConsultationFee.getText()));
+                bill.setMedicineCharge(Integer.parseInt(txtMedicineCharge.getText()));
+                bill.setTestCharge(Integer.parseInt(txtTestCharge.getText()));
+                bill.setOtherCharge(Integer.parseInt(txtOtherCharge.getText()));
+                bill.setTotalAmount(Integer.parseInt(txtTotalAmount.getText()));
+
+                bill.setPaymentMode(cmbPaymentMode.getSelectedItem().toString());
+
+                if (datePicker.getDate() == null) {
+                    JOptionPane.showMessageDialog(this,
+                            "Please Select Bill Date");
+                    return;
+                }
+
+                bill.setBillDate(datePicker.getDate().toString());
+
+                BillPDFGenerator pdf = new BillPDFGenerator();
+                pdf.generatePDF(bill);
+
+            } catch (Exception ex) {
+
+                JOptionPane.showMessageDialog(this,
+                        "Please fill all fields correctly.");
+
+                ex.printStackTrace();
             }
 
         });

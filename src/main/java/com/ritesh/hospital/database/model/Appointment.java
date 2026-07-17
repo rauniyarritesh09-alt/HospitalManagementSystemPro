@@ -9,6 +9,8 @@ public class Appointment {
     private String appointmentDate;
     private String appointmentTime;
     private String status;
+    private String patientName;
+    private String doctorName;
 
     public Appointment() {
     }
@@ -71,5 +73,21 @@ public class Appointment {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getPatientName() {
+        return patientName;
+    }
+
+    public void setPatientName(String patientName) {
+        this.patientName = patientName;
+    }
+
+    public String getDoctorName() {
+        return doctorName;
+    }
+
+    public void setDoctorName(String doctorName) {
+        this.doctorName = doctorName;
     }
 }
